@@ -10,4 +10,4 @@ synopsis:      Terrence's Re-Borne Again Shell
 executable trash
   hs-source-dirs:  src
   main-is:         Main.hs
-  build-depends:   base, parsec
+  build-depends:   base, parsec, unix
