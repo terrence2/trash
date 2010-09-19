@@ -1,7 +1,7 @@
 {-
  - Copyright (c) 2010, Terrence Cole.
  -}
-module Parser (parseCommandLine, Command) where
+module Parser where
 import Text.ParserCombinators.Parsec hiding (spaces, token)
 
 -- Values for WordDesc flags
