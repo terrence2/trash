@@ -1,0 +1,13 @@
+Cabal-Version: >= 1.6
+build-type:    Simple
+
+name:          trash
+version:       0.1
+author:        Terrence Cole
+copyright:     2010
+synopsis:      Terrence's Re-Borne Again Shell
+
+executable trash
+  hs-source-dirs:  src
+  main-is:         Main.hs
+  build-depends:   base, parsec

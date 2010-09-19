@@ -1,0 +1,32 @@
+trash
+=====
+
+About
+-----
+Terrence's Re-Borne Again Shell (trash) is a new shell aimed at significantly improving the command-line experience.
+
+
+Status
+------
+Still in-development.
+
+
+Goals
+-----
+- Fast-to-parse, easy-to-learn, minimal syntax:
+	Everything you need to use a shell interactively with none of the weighty syntax needed to make the shell a full, but painful-to-use language.  Seriously, don't program in shell; it's never worth it.  You'll hate youself in 6 months when you have to make it work in a new environment.  Just use python or perl.  If you _have_ to program in shell, you go use bash or tch.  Bash's parse.y is 5,600+ lines of language implementation.  Trash's parser is under 500 lines and it's going to stay that way.
+	With that svelt implementation, you get: piping (|), background jobs (&), conditional evaluation (&& and ||), and the full suite of file redirections that bash supports (<, >, >>, >&-, etc).
+
+- Directory change history.  It's 2010, why do we still have to use pushd if we want to be able to go back?  Tracking a list of visited directories should be trivial; this will give us a full suite of web-browser-like features:
+    - back: go to prior path, like popd, but for cd
+    - forward: undo a back
+    - up: enter the parent of the current directory
+    - down: enter the first (alphabetically sorted) child directory under the current directory
+    - next: enter the next (alphabetically sorted) sibling directory next to the current directory
+
+- Fully interactive command completion.  No more 30 second pauses while your disks spin up because you accidently hit tab under /mnt.  If you can type faster than trash can think, it's not going to stand in your way.
+
+- Inline, visible completions.  Pushing tab is always an adventure -- it shouldn't be.  We will try to show you what you will get if you push tab, or what is keeping tab from making the completion you think it should be making.
+
+- Fast, inline, history searches.  Ctrl+R can be a rather difficult bash feature to use successfully.  We will provide fish-like inline history searching -- type part of a command and push 'up' to search backwards.  We will also allow regexes in this position so that you can find even the wackiest, hard-to-remember history quickly.
+
