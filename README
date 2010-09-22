@@ -17,7 +17,7 @@ These features are required for the basic level of shell functionality and will 
 
 - Fast-to-parse, easy-to-learn, minimal syntax:
 	Everything you need to use a shell interactively with none of the weighty syntax needed to make the shell a full, yet, hideous language.  Seriously, don't program in shell -- it's never worth it.  You'll just hate youself in 6 months when you have to fix it.  Just use python or perl.  If you _have_ to program in shell, use bash or tch.  Bash's parse.y is 5,600+ lines of language implementation.  Trash's parser is under 500 lines and it's going to stay that way.
-	Things that are supported: chaining (;), piping (|), background jobs (&), conditional evaluation (&& and ||), subshells (()), and the full suite of file redirections that bash supports (<, >, >>, >&-, etc).
+	Things that are supported: chaining (;), piping (|), background jobs (&), conditional evaluation (&& and ||), subshells (()), glob and homedir expansion (*,?,~), and the full suite of file redirections that bash supports (<, >, >>, >&-, etc).
 
 - Improved and expanded current-directory support.  It's 2010, why do we still have to use pushd if we want to be able to go back?  Tracking a list of visited directories is trivial; this gives us a full suite of web-browser-like features:
     - back: go to prior path, like popd, but for cd
