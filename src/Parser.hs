@@ -19,23 +19,24 @@
 module Parser where
 import Text.ParserCombinators.Parsec hiding (spaces, token)
 
+
 -- Values for WordDesc flags
 data WordDescFlags = W_HasDollar
                    | W_Assignment
                    | W_Quoted
                    | W_GlobExp
-                   deriving (Show)
+                   deriving (Eq, Show)
 
 -- One chunk of input text
 data WordDesc = WordDesc { 
                 wordDescFlags :: [WordDescFlags],
                 wordDescWord  :: String
-              } deriving (Show)
+              } deriving (Eq, Show)
 
 -- The target of redirection
 data Redirectee = RedirecteeFD Int
                 | RedirecteeName String
-                deriving (Show)
+                deriving (Eq, Show)
 
 -- possible types for redirection
 data RedirectInstruction = RedirOutputDirection
@@ -58,7 +59,7 @@ data RedirectInstruction = RedirOutputDirection
                          | RedirMoveInputWord
                          | RedirMoveOutputWord
                          | RedirAppendErrAndOut
-                         deriving (Show)
+                         deriving (Eq, Show)
 
 -- describes a redirection
 data Redirect = Redirect { 
