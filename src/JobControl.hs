@@ -21,13 +21,13 @@ import Parser
 import System.Posix.Process
 
 
-dispatchJob :: Command -> IO ()
-dispatchJob (SimpleCommand flags words redirs) = do
+dispatchCommand :: Command -> IO ()
+dispatchCommand (SimpleCommand flags words redirs) = do
         let wrapper = childMain words redirs
         child_id <- forkProcess wrapper
         child_status <- getProcessStatus True True child_id
         return ()
-dispatchJob _ = return ()
+dispatchCommand _ = return ()
 
 
 childMain :: [WordDesc] -> [Redirect] -> IO ()
