@@ -116,11 +116,10 @@ parseQuoted =  do
 
 parseToken :: Parser WordDesc
 parseToken = do
-        x <- many1 (noneOf " \t\n><&;|")
+        tok <- many1 (noneOf " \t\n><&;|")
         -- if the token contains =, then mark as assignment
-        case any (\c -> c == '=') x of
-            True -> return $ WordDesc [W_Assignment] x
-            False -> return $ WordDesc [] x
+        let assign_flag = if elem '=' tok then [W_Assignment] else []
+        return $ WordDesc assign_flag tok
 
 parseWord :: Parser WordDesc
 parseWord = do
