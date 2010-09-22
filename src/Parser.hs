@@ -21,85 +21,92 @@ import Text.ParserCombinators.Parsec hiding (spaces, token)
 
 
 -- Values for WordDesc flags
-data WordDescFlags = W_HasDollar
-                   | W_Assignment
-                   | W_Quoted
-                   | W_GlobExp
-                   deriving (Eq, Show)
+data WordDescFlags = 
+          W_HasDollar
+        | W_Assignment
+        | W_Quoted
+        | W_GlobExp
+       deriving (Eq, Show)
 
 -- One chunk of input text
-data WordDesc = WordDesc { 
-                wordDescFlags :: [WordDescFlags],
-                wordDescWord  :: String
-              } deriving (Eq, Show)
+data WordDesc = 
+        WordDesc { 
+          wordDescFlags :: [WordDescFlags]
+        , wordDescWord  :: String
+        } deriving (Eq, Show)
 
 -- The target of redirection
-data Redirectee = RedirecteeFD Int
-                | RedirecteeName String
-                deriving (Eq, Show)
+data Redirectee = 
+          RedirecteeFD Int
+        | RedirecteeName String
+        deriving (Eq, Show)
 
 -- possible types for redirection
-data RedirectInstruction = RedirOutputDirection
-                         | RedirInputDirection
-                         | RedirInputADirection
-                         | RedirAppendingTo
-                         | RedirReadingUntil
-                         | RedirReadingString
-                         | RedirDuplicatingInput
-                         | RedirDuplicatingOutput
-                         | RedirDeblankReadingUntil
-                         | RedirCloseThis
-                         | RedirErrAndOut
-                         | RedirInputOutput
-                         | RedirOutputForce
-                         | RedirDuplicatingInputWord
-                         | RedirDuplicatingOutputWord
-                         | RedirMoveInput
-                         | RedirMoveOutput
-                         | RedirMoveInputWord
-                         | RedirMoveOutputWord
-                         | RedirAppendErrAndOut
-                         deriving (Eq, Show)
+data RedirectInstruction = 
+          RedirOutputDirection
+        | RedirInputDirection
+        | RedirInputADirection
+        | RedirAppendingTo
+        | RedirReadingUntil
+        | RedirReadingString
+        | RedirDuplicatingInput
+        | RedirDuplicatingOutput
+        | RedirDeblankReadingUntil
+        | RedirCloseThis
+        | RedirErrAndOut
+        | RedirInputOutput
+        | RedirOutputForce
+        | RedirDuplicatingInputWord
+        | RedirDuplicatingOutputWord
+        | RedirMoveInput
+        | RedirMoveOutput
+        | RedirMoveInputWord
+        | RedirMoveOutputWord
+        | RedirAppendErrAndOut
+        deriving (Eq, Show)
 
 -- describes a redirection
-data Redirect = Redirect { 
-                redirectSource :: Int, -- source for redirection
-                redirectInstruction :: RedirectInstruction,
-                redirectDestination :: Redirectee
-              } deriving (Show)
+data Redirect = 
+        Redirect { 
+          redirectSource :: Int -- source for redirection
+        , redirectInstruction :: RedirectInstruction
+        , redirectDestination :: Redirectee
+        } deriving (Show)
 
 -- Possible values for command->flags.
-data CommandFlags = CmddWantSubshell    -- User wants a subshell: ( command )
-                  | CmdForceSubshell    -- Shell needs to force a subshell.
-                  | CmdInvertReturn     -- Invert the exit value.
-                  | CmdIgnoreReturn     -- Ignore the exit value.  For set -e.
-                  | CmdInhibitExpansion -- Do not expand the command words.
-                  | CmdNoFork           -- Don't fork; just call execve
-                  | CmdTimePipeline     -- Time a pipeline
-                  | CmdTimePosix        -- time -p; use POSIX.2 time output spec.
-                  | CmdAmpersand        -- command &
-                  | CmdStdinRedir       -- async command needs implicit </dev/null
-                  | CmdCommandBuiltin   -- command executed by `command' builtin
-                  | CmdCoprocSubshell
-                  deriving (Show)
+data CommandFlags = 
+          CmddWantSubshell    -- User wants a subshell: ( command )
+        | CmdForceSubshell    -- Shell needs to force a subshell.
+        | CmdInvertReturn     -- Invert the exit value.
+        | CmdIgnoreReturn     -- Ignore the exit value.  For set -e.
+        | CmdInhibitExpansion -- Do not expand the command words.
+        | CmdNoFork           -- Don't fork; just call execve
+        | CmdTimePipeline     -- Time a pipeline
+        | CmdTimePosix        -- time -p; use POSIX.2 time output spec.
+        | CmdAmpersand        -- command &
+        | CmdStdinRedir       -- async command needs implicit </dev/null
+        | CmdCommandBuiltin   -- command executed by `command' builtin
+        | CmdCoprocSubshell
+        deriving (Show)
 
 --FIXME: support for Subshells
-data Command = SimpleCommand {
-               commandFlags :: [CommandFlags]
-             , commandWords :: [WordDesc]     -- env override, command, args, etc
-             , commandRedirects :: [Redirect] -- redirects for the command
-             }
-             | ConnectionCommand {
-               commandFlags :: [CommandFlags]
-             , commandFirst :: Command
-             , commandSecond :: Command
-             , commandConnector :: String -- the separating string, |, ;, &&, ||, etc
-             }
-             | SubshellCommand {
-               commandFlags :: [CommandFlags]
-             , commandSub :: Command
-             }
-             deriving (Show)
+data Command = 
+        SimpleCommand {
+          commandFlags :: [CommandFlags]
+        , commandWords :: [WordDesc]     -- env override, command, args, etc
+        , commandRedirects :: [Redirect] -- redirects for the command
+        }
+        | ConnectionCommand {
+          commandFlags :: [CommandFlags]
+        , commandFirst :: Command
+        , commandSecond :: Command
+        , commandConnector :: String -- the separating string, |, ;, &&, ||, etc
+        }
+        | SubshellCommand {
+          commandFlags :: [CommandFlags]
+        , commandSub :: Command
+        }
+        deriving (Show)
 
 
 spaces :: Parser ()
@@ -134,57 +141,57 @@ parseWordList = do
 
 parseRedirection :: Parser Redirect
 parseRedirection = 
-    do filename <- try (string "<<<" >> optspaces >> parseWord)
-       return $ Redirect 0 RedirReadingString (RedirecteeName (wordDescWord filename))
-    <|>
-    do filename <- try (string ">>" >> optspaces >> parseWord)
-       return $ Redirect 1 RedirAppendingTo (RedirecteeName (wordDescWord filename))
-    <|>
-    do filename <- try (string "<<-" >> optspaces >> parseWord)
-       return $ Redirect 0 RedirDeblankReadingUntil (RedirecteeName (wordDescWord filename))
-    <|>
-    do filename <- try (string "<<" >> optspaces >> parseWord)
-       return $ Redirect 0 RedirReadingUntil (RedirecteeName (wordDescWord filename))
-    <|>
-    do try (string "<&-")
-       return $ Redirect 0 RedirCloseThis (RedirecteeFD 0)
-    <|>
-    do fd <- try (string "<&" >> optspaces >> many1 digit)
-       return $ Redirect 0 RedirDuplicatingInput (RedirecteeFD (read fd))
-    <|>
-    do filename <- try (string "<&" >> optspaces >> parseWord)
-       return $ Redirect 0 RedirDuplicatingInputWord (RedirecteeName (wordDescWord filename))
-    <|>
-    do try (string ">&-")
-       return $ Redirect 0 RedirCloseThis (RedirecteeFD 0)
-    <|>
-    do fd <- try (string ">&" >> optspaces >> many1 digit)
-       return $ Redirect 1 RedirDuplicatingOutput (RedirecteeFD (read fd))
-    <|>
-    do filename <- try (string ">&" >> optspaces >> parseWord)
-       return $ Redirect 1 RedirDuplicatingOutputWord (RedirecteeName (wordDescWord filename))
-    <|>
-    do filename <- try (string ">|" >> optspaces >> parseWord)
-       return $ Redirect 0 RedirOutputForce (RedirecteeName (wordDescWord filename))
-    <|>
-    do filename <- try (string "<>" >> optspaces >> parseWord)
-       return $ Redirect 0 RedirInputOutput (RedirecteeName (wordDescWord filename))
-    <|>
-    do filename <- try (char '>' >> optspaces >> parseWord)
-       return $ Redirect 1 RedirOutputDirection (RedirecteeName (wordDescWord filename))
-    <|>
-    do filename <- try (char '<' >> optspaces >> parseWord)
-       return $ Redirect 0 RedirInputDirection (RedirecteeName (wordDescWord filename))
-    <|>
-    do filename <- try (string "&>>" >> optspaces >> parseWord)
-       return $ Redirect 0 RedirAppendErrAndOut (RedirecteeName (wordDescWord filename))
-    <|>
-    do filename <- try (string "&>" >> optspaces >> parseWord)
-       return $ Redirect 0 RedirErrAndOut (RedirecteeName (wordDescWord filename))
-    <|>
-    do fd <- many1 digit
-       redir <- parseRedirection
-       return $ Redirect (read fd) (redirectInstruction redir) (redirectDestination redir)
+        do filename <- try (string "<<<" >> optspaces >> parseWord)
+           return $ Redirect 0 RedirReadingString (RedirecteeName (wordDescWord filename))
+        <|>
+        do filename <- try (string ">>" >> optspaces >> parseWord)
+           return $ Redirect 1 RedirAppendingTo (RedirecteeName (wordDescWord filename))
+        <|>
+        do filename <- try (string "<<-" >> optspaces >> parseWord)
+           return $ Redirect 0 RedirDeblankReadingUntil (RedirecteeName (wordDescWord filename))
+        <|>
+        do filename <- try (string "<<" >> optspaces >> parseWord)
+           return $ Redirect 0 RedirReadingUntil (RedirecteeName (wordDescWord filename))
+        <|>
+        do try (string "<&-")
+           return $ Redirect 0 RedirCloseThis (RedirecteeFD 0)
+        <|>
+        do fd <- try (string "<&" >> optspaces >> many1 digit)
+           return $ Redirect 0 RedirDuplicatingInput (RedirecteeFD (read fd))
+        <|>
+        do filename <- try (string "<&" >> optspaces >> parseWord)
+           return $ Redirect 0 RedirDuplicatingInputWord (RedirecteeName (wordDescWord filename))
+        <|>
+        do try (string ">&-")
+           return $ Redirect 0 RedirCloseThis (RedirecteeFD 0)
+        <|>
+        do fd <- try (string ">&" >> optspaces >> many1 digit)
+           return $ Redirect 1 RedirDuplicatingOutput (RedirecteeFD (read fd))
+        <|>
+        do filename <- try (string ">&" >> optspaces >> parseWord)
+           return $ Redirect 1 RedirDuplicatingOutputWord (RedirecteeName (wordDescWord filename))
+        <|>
+        do filename <- try (string ">|" >> optspaces >> parseWord)
+           return $ Redirect 0 RedirOutputForce (RedirecteeName (wordDescWord filename))
+        <|>
+        do filename <- try (string "<>" >> optspaces >> parseWord)
+           return $ Redirect 0 RedirInputOutput (RedirecteeName (wordDescWord filename))
+        <|>
+        do filename <- try (char '>' >> optspaces >> parseWord)
+           return $ Redirect 1 RedirOutputDirection (RedirecteeName (wordDescWord filename))
+        <|>
+        do filename <- try (char '<' >> optspaces >> parseWord)
+           return $ Redirect 0 RedirInputDirection (RedirecteeName (wordDescWord filename))
+        <|>
+        do filename <- try (string "&>>" >> optspaces >> parseWord)
+           return $ Redirect 0 RedirAppendErrAndOut (RedirecteeName (wordDescWord filename))
+        <|>
+        do filename <- try (string "&>" >> optspaces >> parseWord)
+           return $ Redirect 0 RedirErrAndOut (RedirecteeName (wordDescWord filename))
+        <|>
+        do fd <- many1 digit
+           redir <- parseRedirection
+           return $ Redirect (read fd) (redirectInstruction redir) (redirectDestination redir)
 
 parseRedirectionList :: Parser [Redirect]
 parseRedirectionList = do
