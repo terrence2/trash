@@ -17,6 +17,7 @@
  - along with Trash.  If not, see <http://www.gnu.org/licenses/>.
  -}
 module JobControl where
+import Command
 import Parser
 import System.Posix.Process
 
