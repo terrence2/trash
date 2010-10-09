@@ -29,7 +29,7 @@ mainloop = do
         let cmd = parseCommandLine line
         case cmd of
            	Left err -> putStrLn (show err)
-           	Right cmd -> dispatchCommand cmd
+           	Right cmd -> (dispatchCommand cmd) >> (return ())
 
         mainloop
 
